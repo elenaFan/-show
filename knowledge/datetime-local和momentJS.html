@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <input type="datetime-local" id="time">
+</body>
+</html>
+
+
+<script src="../assets/vendors/moment/moment.js"></script>
+
+<script>
+
+    //找到时间元素
+    var time = document.getElementById('time');
+
+    //获取当前时间
+    // var date = new Date();
+
+    //在moment.js里，要表示年，必须用大写的YYYY ，dd代表星期，DD代表日,HH代表24小时制，小写hh代表12小时制
+    var result = moment().format('YYYY-MM-DD HH:mm');
+    console.log(result);
+
+
+    time.value = moment().format('YYYY-MM-DDTHH:mm');
+
+
+    // var result = moment("1999-1-1 12:03").format('YYYY-MM-DD HH:mm');
+    // console.log(result);
+    
+    
+    /*
+    //获取年
+    var year = date.getFullYear();
+    //获取月,因为它从0开始，要转成现实的月份记得加1
+    var month = date.getMonth() + 1;
+
+    month = month < 10 ? "0" + month : month;
+
+    // console.log(month);
+    //获得日
+    var day = date.getDate();
+
+    day = day < 10 ? "0" + day : day;
+
+    var hour = date.getHours();
+    hour = hour < 10 ? "0" + hour : hour;
+
+    var min = date.getMinutes();
+    min = min < 10 ? "0" + min : min;
+    
+
+    //这种形式也不可以！  YYYY-MM-DDTHH:mm
+    // time.value = "1900-01-01T01:45";
+    time.value = year + "-" + month + "-" + day +"T" + hour + ":" + min;
+    */
+
+</script>

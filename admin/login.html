@@ -1,0 +1,77 @@
+<!-- 
+
+  真实开发中：
+    前端开发：
+    后端开发：
+
+        同时进行的，把接口文档写好，然后大家根据接口文档去做自己的事
+        前后端分离：前端和后端根据接口文档各自写各自的内容
+
+
+  1.找到提示信息，先给它加一个样式：display:none:因为它默认不需要显示
+
+  2.给登录的a标签href改成javascript:void(0)，防止跳转
+
+  3.给它加点击事件，点击事件里去发请求，根据响应体判断是否跳转
+
+-->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Sign in &laquo; Admin</title>
+  <link rel="stylesheet" href="../assets/vendors/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+  <div class="login">
+    <form class="login-wrap">
+      <img class="avatar" src="../assets/img/default.png">
+      <!-- 有错误信息时展示 -->
+      <div class="alert alert-danger" style="display: none;">
+        <strong>错误！</strong> 用户名或密码错误！
+      </div>
+      <div class="form-group">
+        <label for="email" class="sr-only">邮箱</label>
+        <input id="email" type="email" class="form-control" placeholder="邮箱" autofocus>
+      </div>
+      <div class="form-group">
+        <label for="password" class="sr-only">密码</label>
+        <input id="password" type="password" class="form-control" placeholder="密码">
+      </div>
+      <a class="btn btn-primary btn-block" href="javascript:void(0)">登 录</a>
+    </form>
+  </div>
+</body>
+</html>
+
+<script src="/assets/vendors/jquery/jquery.js"></script>
+
+<script>
+
+  //找到登录，给它加一个点击事件
+  $('.btn').click(function(){
+
+      //发请求判断是否登录成功
+      $.post({
+
+        url:"api/doLogin.php",
+        data:{ email:$('#email').val() ,  password:$('#password').val() },
+        success:function(obj){
+
+          if(obj == "ok"){
+
+              //跳转到首页
+              location = "index.html";
+          }else{
+
+            //登录失败
+            $('.alert').show();
+          }
+
+        }
+      });
+  })
+
+</script>

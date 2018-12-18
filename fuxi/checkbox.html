@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" placeholder="请输入账号">
+    <input type="password" placeholder="请输入密码">
+    <input type="checkbox">选项1
+    <input type="checkbox">选项2
+    <input type="checkbox">选项3
+    <input type="checkbox">选项4
+
+    <input type="button" value="点" id="btn">
+
+</body>
+</html>
+
+<script src="../assets/vendors/jquery/jquery.js"></script>
+<script>
+
+    //我要找到所有的checkbox
+    // console.log($('input[type=checkbox]'));
+
+    //代表找到所有的checkbox
+    console.log($(':checkbox'));
+
+    //找到所有被选中的checkbox
+    console.log($(':checked'));
+    
+    
+    document.getElementById('btn').onclick = function(){
+
+         console.log($(':checked'));
+        
+    }
+</script>

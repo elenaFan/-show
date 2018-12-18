@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form action="test.php" id="myForm">
+
+        <input type="text" name="user" placeholder="请输入账号">
+        <input type="password" name="pwd" placeholder="请输入密码">
+        <input type="datetime-local" name="time">
+        <div name="test">  我是div </div>
+        <input type="file" name="icon">
+        
+    </form>
+
+    <input type="button" value="点我" id="btn">
+
+
+</body>
+</html>
+
+<script src="/assets/vendors/jquery/jquery.js"></script>
+
+<script>
+    //找到表单
+    var form = document.querySelector('form');
+
+    document.getElementById('btn').onclick = function(){
+
+        //formData对象，如果传入一个表单对象，那么会自动把这个表单内的所有带name元素的值当做参数传递
+        //注意只能找到表单元素，不是表单元素即使带name属性也不会找到
+        var fm = new FormData(form);
+
+
+        //发一个异步请求，需要把表单里的所有元素数据都当做参数传递给服务器
+        var xhr = new XMLHttpRequest();
+        xhr.open('post','test.php');
+        xhr.send(fm);
+    }
+
+   
+
+    // $('#btn').click(function(){
+
+    //     var str = $('#myForm').serialize();;
+
+
+    //     $.post({
+    //         url:"test.php",
+    //         data: str,
+    //         success:function(obj){
+
+    //             console.log(obj);
+                
+    //         }
+    //     });
+    // })
+</script>

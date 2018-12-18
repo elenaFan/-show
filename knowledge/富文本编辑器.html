@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <!-- 导入JS文件 -->
+    <script src="../assets/vendors/wangEditor.min.js"></script>
+
+</head>
+
+<body>
+
+    <!-- 准备一个div：用来做富文本编辑器的div -->
+    <div id="editor"></div>
+
+
+    <input type="button" value="获取html" id="getHTML">
+    <input type="button" value="获取Text" id="getText">
+
+</body>
+
+</html>
+
+<script>
+
+    // 1. 创建一个富文本对象,写一个div的id，代表把某个div变成富文本编辑器
+    var editor = new wangEditor('#editor');
+    // 2. 调用create方法
+    editor.create();
+
+
+    document.getElementById('getHTML').onclick = function () {
+
+        //获取的内容带标签
+        console.log(editor.txt.html());
+
+    }
+
+
+    document.getElementById('getText').onclick = function () {
+
+        //获取的内容是纯文本
+        console.log(editor.txt.text());
+
+    }
+</script>

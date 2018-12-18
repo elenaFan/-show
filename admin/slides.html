@@ -1,0 +1,424 @@
+<!-- 
+
+  1. 显示轮播图的数据 
+      1.1 准备一个获得轮播图数据的接口
+      1.2 页面一打开请求这个接口
+      1.3 拿到响应体后，用模板创建tr，加到tbody上
+      1.4 准备一个全局变量list，记录返回的数组（方便后面用）
+
+  
+  2.完成新增轮播图
+      2.1 给上传文件做预览
+          我们用永久url的方案，因为我们需要拿到永久的路径保存在轮播图里
+          2.1.1 准备一个上传文件的接口，它的响应体返回的是文件上传后的路径
+          2.1.2 给file加一个change事件，事件里发刚刚这个接口的请求
+
+      2.2 添加的点击事件
+          2.2.1 把界面上的数据组成一个对象
+          2.2.2 把对象添加到list这个全局数组里
+          2.2.3 把list转换成JSON字符串
+          2.2.4 准备一个修改轮播图的接口，传入一个参数，json字符串
+          2.2.5 请求这个接口传入刚刚的字符串
+
+  
+  3. 删除轮播图
+      3.1 给每个删除加行内的点击事件，需要传入自己的下标
+      3.2 事件里直接调用list的splice方法，删除传入的对应的下标元素
+      3.3 转成JSON字符串，发起请求
+
+
+  4. 批量删除
+      4.1 直接找到所有没被选中的checkbox，遍历它们，拿到它们的value(事先去模板里，把下标保存在value里)
+       拿到它们的value（这就是它们在总数组中的下标），根据下标取到元素，加到新的数组里
+
+      4.2 新的数组转换为JSON字符串，再提交到接口
+
+ -->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <script>
+    //发起一个异步请求，去问服务器有没有SESSION（换句话说就是问服务器有没有登录成功）
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', 'api/checkLogin.php');
+    xhr.send();
+
+    xhr.onload = function () {
+
+      if (xhr.responseText != "ok") {
+
+        //打回登录页面
+        location = 'login.html';
+
+        return; //不让执行后面代码
+      }
+    }
+
+  </script>
+  <meta charset="utf-8">
+  <title>Slides &laquo; Admin</title>
+  <link rel="stylesheet" href="../assets/vendors/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="../assets/vendors/font-awesome/css/font-awesome.css">
+  <link rel="stylesheet" href="../assets/vendors/nprogress/nprogress.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <script src="../assets/vendors/nprogress/nprogress.js"></script>
+</head>
+
+<body>
+  <script>NProgress.start()</script>
+
+  <div class="main">
+    <nav class="navbar">
+      <button class="btn btn-default navbar-btn fa fa-bars"></button>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a href="profile.html">
+            <i class="fa fa-user"></i>个人中心</a>
+        </li>
+        <li>
+          <a href="api/logout.php">
+            <i class="fa fa-sign-out"></i>退出</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="container-fluid">
+      <div class="page-title">
+        <h1>图片轮播</h1>
+      </div>
+      <!-- 有错误信息时展示 -->
+      <!-- <div class="alert alert-danger">
+        <strong>错误！</strong>发生XXX错误
+      </div> -->
+      <div class="row">
+        <div class="col-md-4">
+          <form>
+            <h2>添加新轮播内容</h2>
+            <div class="form-group">
+              <label for="image">图片</label>
+              <!-- show when image chose -->
+              <img class="help-block thumbnail" style="display: none">
+              <input id="image" class="form-control" name="image" type="file">
+            </div>
+            <div class="form-group">
+              <label for="text">文本</label>
+              <input id="text" class="form-control" name="text" type="text" placeholder="文本">
+            </div>
+            <div class="form-group">
+              <label for="link">链接</label>
+              <input id="link" class="form-control" name="link" type="text" placeholder="链接">
+            </div>
+            <div class="form-group">
+              <button id="add" class="btn btn-primary" type="submit">添加</button>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-8">
+          <div class="page-action">
+            <!-- show when multiple checked -->
+            <a id="btn-batch" class="btn btn-danger btn-sm" href="javascript:;" style="display: none">批量删除</a>
+          </div>
+          <table class="table table-striped table-bordered table-hover">
+            <thead>
+              <tr>
+                <th class="text-center" width="40">
+                  <input type="checkbox">
+                </th>
+                <th class="text-center">图片</th>
+                <th>文本</th>
+                <th>链接</th>
+                <th class="text-center" width="100">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center">
+                  <input type="checkbox">
+                </td>
+                <td class="text-center">
+                  <img class="slide" src="../uploads/slide_1.jpg">
+                </td>
+                <td>XIU功能演示</td>
+                <td>#</td>
+                <td class="text-center">
+                  <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  <input type="checkbox">
+                </td>
+                <td class="text-center">
+                  <img class="slide" src="../uploads/slide_2.jpg">
+                </td>
+                <td>XIU功能演示</td>
+                <td>#</td>
+                <td class="text-center">
+                  <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="aside">
+    <div class="profile">
+      <img class="avatar" src="../uploads/avatar.jpg">
+      <h3 class="name">布头儿</h3>
+    </div>
+    <ul class="nav">
+      <li>
+        <a href="index.html">
+          <i class="fa fa-dashboard"></i>仪表盘</a>
+      </li>
+      <li>
+        <a href="#menu-posts" class="collapsed" data-toggle="collapse">
+          <i class="fa fa-thumb-tack"></i>文章
+          <i class="fa fa-angle-right"></i>
+        </a>
+        <ul id="menu-posts" class="collapse">
+          <li>
+            <a href="posts.html">所有文章</a>
+          </li>
+          <li>
+            <a href="post-add.html">写文章</a>
+          </li>
+          <li>
+            <a href="categories.html">分类目录</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="comments.html">
+          <i class="fa fa-comments"></i>评论</a>
+      </li>
+      <li>
+        <a href="users.html">
+          <i class="fa fa-users"></i>用户</a>
+      </li>
+      <li class="active">
+        <a href="#menu-settings" data-toggle="collapse">
+          <i class="fa fa-cogs"></i>设置
+          <i class="fa fa-angle-right"></i>
+        </a>
+        <ul id="menu-settings" class="collapse in">
+          <li>
+            <a href="nav-menus.html">导航菜单</a>
+          </li>
+          <li class="active">
+            <a href="slides.html">图片轮播</a>
+          </li>
+          <li>
+            <a href="settings.html">网站设置</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <script src="../assets/vendors/jquery/jquery.js"></script>
+  <script src="../assets/vendors/bootstrap/js/bootstrap.js"></script>
+  <script src="/assets/vendors/template-web.js"></script>
+  <script>NProgress.done()</script>
+</body>
+
+</html>
+
+
+<script type="text/html" id="tpl">
+
+{{ each list value key}}
+  <tr>
+      <td class="text-center"><input type="checkbox" value="{{ key }}"></td>
+      <td class="text-center"><img class="slide" src="{{ value.image }}"></td>
+      <td>{{ value.text }}</td>
+      <td>{{ value.link }}</td>
+      <td class="text-center">
+        <a href="javascript:deleteTr({{ key }});" class="btn btn-danger btn-xs">删除</a>
+      </td>
+  </tr>
+
+{{ /each }}
+
+</script>
+
+<script>
+
+  //准备一个全局变量保存获得到的轮播图数组
+  var list;
+
+  function loadData() {
+    $.get({
+
+      url: "api/getSliders.php",
+      dataType: "json",
+      success: function (obj) {
+
+        //记录一下
+        list = obj;
+
+        var html = template('tpl', { list: obj });
+        $('tbody').html(html);
+
+      }
+    });
+  };
+
+  loadData();
+
+
+  //给选择文件的元素加一个值改变事件
+  $('#image').change(function () {
+
+    //创建一个formdata对象
+    var fm = new FormData();
+    fm.append('img', this.files[0]);
+
+    $.post({
+
+      url: "api/uploadImg.php",
+      data: fm,
+      contentType: false,
+      processData: false,
+      success: function (obj) {
+
+        $('.help-block').attr('src', obj).show();
+
+      }
+    });
+  });
+
+  //添加的点击事件
+  $('#add').click(function (e) {
+
+    e = e || window.event;
+    e.preventDefault();
+
+    //拿到界面上的值，拼成一个对象
+    var newSlider = {
+
+      image: $('.help-block').attr('src'),
+      text: $('#text').val(),
+      link: $('#link').val()
+    };
+
+    //把添加的轮播图加到数组
+    list.push(newSlider);
+
+    //把数组转JSON字符串
+    var jsonStr = JSON.stringify(list);
+
+    //发送请求，交给服务器去更新数据库
+    $.post({
+
+      url: "api/updateSlider.php",
+      data: { sliderList: jsonStr },
+      success: function (obj) {
+
+        if (obj.trim() == 'ok') {
+
+          //刷新数据
+          loadData();
+
+        } else {
+
+          alert('修改失败！');
+        }
+      }
+    })
+  })
+
+
+  //单行删除的点击事件
+  function deleteTr(index) {
+
+    //要根据下标来删除
+    list.splice(index, 1);
+
+    //转换为JSON字符串
+    var jsonStr = JSON.stringify(list);
+
+    $.post({
+
+      url: "api/updateSlider.php",
+      data: { sliderList: jsonStr },
+      success: function (obj) {
+
+        if (obj.trim() == 'ok') {
+
+          loadData();
+        } else {
+
+          alert('删除失败！');
+        }
+      }
+    });
+  }
+
+
+  //全选的点击事件
+  $('thead :checkbox').click(function () {
+
+    $('tbody :checkbox').prop('checked', this.checked);
+
+    if (this.checked) {
+
+      $('#btn-batch').fadeIn();
+    } else {
+
+      $('#btn-batch').fadeOut();
+    }
+  })
+
+
+  $('tbody').on('click', ':checkbox', function () {
+
+    $('thead :checkbox').prop('checked', $('tbody :checked').length == $('tbody :checkbox').length);
+
+    if ($('tbody :checked').length > 0) {
+
+      $('#btn-batch').fadeIn();
+    } else {
+
+      $('#btn-batch').fadeOut();
+    }
+  })
+
+
+  $('#btn-batch').click(function () {
+
+    // 找到所有没被选中的checkbox，再用这些checkbox所在行的数据组成新的数组，提交到服务器
+    // console.log($('tbody :checkbox').not(':checked'));
+
+    var newList = [];
+    $('tbody :checkbox').not(':checked').each(function (index, ele) {
+
+      newList.push(list[ele.value]);
+    })
+
+
+    //转换为JSON字符串
+    var jsonStr = JSON.stringify(newList);
+
+    $.post({
+
+      url: "api/updateSlider.php",
+      data: { sliderList: jsonStr },
+      success: function (obj) {
+
+        if (obj.trim() == 'ok') {
+
+          loadData();
+        } else {
+
+          alert('删除失败！');
+        }
+      }
+    });
+  })
+
+</script>

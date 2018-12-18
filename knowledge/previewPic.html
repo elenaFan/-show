@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <!-- 相对路径，要么就是一个URL -->
+    <!-- <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1533899980329&di=e3a2fe02b09a0d7f3e4f4e3dd7943267&imgtype=0&src=http%3A%2F%2Fs8.sinaimg.cn%2Fmiddle%2F8ee3e0acxb0171b491f27%26690" alt=""> -->
+
+    <input type="file" id="file">
+    <img src="" alt="" id="img">
+</body>
+</html>
+
+<script>
+
+    /*
+        两套预览图片的方案：
+                1.临时URL
+                        把你刚刚选择的那个图片，转换成一个临时的url，然后再把url给img的src就能显示了
+
+                        为什么叫临时？只在当前页面效果，而且当前页面打开再关闭也无效
+
+                2.永久URL
+                        当选择完图片后，立即将图片上传到服务器，服务器返回一个图片的路径，这个路径就是永久的url
+
+                ajax2.0  其实就是多了一个FormData对象
+    */
+
+    //值改变事件
+
+
+    //临时URL的预览方案
+    /*
+    document.getElementById('file').onchange = function(){
+        
+        //想把选中的图片给img去显示
+        // console.dir(this);
+        // 用file元素选择的文件，会临时放在file的files属性里，那么我们直接取下标0，就可以取到这个文件
+        // 要想办法把文件转成URL
+        var url = URL.createObjectURL(this.files[0]);
+                
+        //要给img一个url
+        document.getElementById('img').src = url;
+        
+    }
+    */
+
+
+    document.getElementById('file').onchange = function(){
+        
+    
+        //要异步上传文件  需要ajax2.0技术方案  ajax1.0方案不能异步上传文件，ajax2.0出来后就可以异步上传文件了
+        //ajax2.0 依赖于一个对象，叫FormData对象，其他的代码几乎都一样，但需要一个FormData对象
+        //注意：如果用了FormData，那么就不需要设置请求头了， 它会自动帮你设置
+        
+        //创建请求对象
+        var xhr = new XMLHttpRequest();
+
+        //设置请求行
+        xhr.open('post','data.php');
+        
+
+        //创建一个formdata对象
+        var fm = new FormData();
+        //意思是把this.files[0]这个文件准备上传，用icon这个键来传
+        fm.append('icon', this.files[0] );
+
+
+        //发送请求，并且把fm当做请求体传送
+        xhr.send(fm);
+
+        xhr.onload = function(){
+
+            // console.log(xhr.responseText);
+            document.getElementById('img').src = xhr.responseText;
+            
+        }
+
+    }
+</script>

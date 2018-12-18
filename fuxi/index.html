@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <input type="button" value="获取" id="get">
+    <input type="button" value="设置" id="set">
+</body>
+</html>
+
+<script>
+
+    document.getElementById('get').onclick = function(){
+
+        console.log(location.href);
+        
+    }
+
+    document.getElementById('set').onclick = function(){
+
+        // location.href = "1.html";
+        //简写成
+        location = "1.html";
+    }
+
+</script>
